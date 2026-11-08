@@ -1,8 +1,7 @@
 ---
 description: Researcher read-only. Mapa codebase/docs com evidência. Não edita. Não implementa.
 mode: subagent
-model: omni-router/omni/researcher
-variant: high
+model: google/antigravity-gemini-3.8-flash-medium
 temperature: 0.2
 color: "#06B6D4"
 permission:
@@ -15,7 +14,10 @@ permission:
     "graphify": allow
   doom_loop: ask
   edit: deny
-  bash: allow
+  bash: deny
+  grep: deny
+  execute: deny
+  atlassian_*: deny
   task:
     "*": deny
     "explore": allow

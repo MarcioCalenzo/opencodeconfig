@@ -9,12 +9,14 @@ Toda delegação é uma tarefa com estes campos, mesmo quando o brief é curto:
 task_id: identificador curto
 objective: resultado desejado
 classification: SIMPLE|MEDIUM|COMPLEX
+risk: low|medium|critical — sinais: auth/authz, dados pessoais, pagamentos/webhooks, uploads, queries/migrations/concorrência, segredos, contratos públicos
 owner: agent responsável
 inputs: paths, símbolos, erros e contexto necessário
 constraints: limites técnicos e de escopo
 deliverables: artefatos esperados
 acceptance: critérios verificáveis de aceite
 out_of_scope: o que não fazer
+attempts_consumed: tentativas já gastas (não zera ao trocar executor)
 failure_policy: retry limitado|blocked|stop
 ```
 
@@ -93,13 +95,36 @@ depends_on: []                 # task_ids do wave anterior, se houver
 
 NÃO: fan-out em tarefa acoplada; paralelo develop∥tester; vários writers no mesmo arquivo; Tasks seriais em turnos só para “ver melhor”.
 
-## Política de retry (valor único)
-- Erro recuperável ou saída inválida: **≤1 retry** com fato novo (subagent, tool call, comando).
-- Orchestrator re-delegando ao mesmo agent: **≤2**, sempre com fato novo no brief.
-- Mesmo erro após o retry permitido → `STOP_LOOP`. Nunca "tentar de novo com outras palavras".
+## Política de tentativas (fonte única)
 
-## Escalada de tier (agents com variação de modelo)
-Alguns agents têm variações por modelo (ex.: `develop-lite`/`develop`/`develop-max`). Falha em um tier **não retenta no mesmo tier**: sobe um degrau. "Modelo superior" conta como o fato novo exigido pela política de retry acima — não é "tentar de novo com outras palavras". Subir de tier após falha não conta como STOP_LOOP nem como re-call do mesmo agent, porque o agent mudou. Default é sempre o tier padrão; tier baixo só por whitelist explícita do agent, tier alto só por sinal explícito de complexidade ou por escalada.
+Orçamento por unidade de trabalho (tetos, não etapas obrigatórias):
+1. **Uma tentativa inicial** — um ciclo de abordagem + verificação, não cada chamada de ferramenta nem cada teste.
+2. No máximo **1 correção pelo mesmo executor**, com evidência e hipótese nova.
+3. Sem progresso: no máximo **1 tentativa pela alternativa autorizada** (`develop-max`/`backend-max`, GLM-5.3-Flash) — não automaticamente superior; exige hipótese nova ou indisponibilidade autorizada.
+4. Persistindo a falha: `STOP_LOOP` e relatório do bloqueio.
+
+Regras:
+- Sem hipótese nova, pare antes de consumir o teto. Trocar agent ou modelo **não zera** o orçamento. Mudança real de escopo exige replanejamento, não retry disfarçado.
+- Erro transitório de ferramenta: retry curto e limitado quando repetir for seguro; não repita ação com efeito externo se houver dúvida sobre a 1ª execução.
+- Abordagem incorreta: use a evidência do erro e uma hipótese nova.
+- Quota, rate limit ou indisponibilidade: use apenas fallback previamente autorizado; não trate como falha de programação; não migre silenciosamente para acesso mais caro ou outra conta; registre a troca **visivelmente**.
+- Falta de contexto ou permissão: `blocked`, declarando o necessário.
+- Orchestrator re-delegando ao mesmo agent: **≤2**, sempre com fato novo no brief. Não re-delegue para "confirmar"; mesmo erro após o retry permitido → `STOP_LOOP`. Nunca "tentar de novo com outras palavras".
+
+## Alternativa e distribuição (fonte única)
+
+- `develop`/`backend`/`debugger`/`tester` (e `build`/`general`) executam com DeepSeek V4.1 Flash. `develop-lite` (MiMo) apenas whitelist de trivialidades — mudanças em autorização, validação, persistência ou contratos **não** são trivialidade por terem diff pequeno.
+- `develop-max`/`backend-max` (GLM-5.3-Flash) são **alternativa de implementação**: entram após falha com hipótese nova ou fallback autorizado de indisponibilidade; nunca na primeira tentativa e nunca como "tier superior" garantido.
+- `security` (Kimi K3.1 Pro) nunca é executor padrão: revisão crítica consolidada (correção/integração/contratos/segurança/lacunas de teste) e análises sensíveis. Se indisponível, a revisão fica **pendente**; revisão preliminar por Gemini não satisfaz o gate crítico e não substitui Kimi por modelo econômico.
+- Risco tem prioridade sobre tamanho de diff: mudança pequena em auth/validação/persistência/contrato pode exigir revisão crítica; mudança mecanicamente grande sem risco não exige auditoria duplicada automaticamente. Tarefa crítica pode ir de implementação + verificações direto à revisão crítica (security), sem review intermediário obrigatório.
+
+## Falha do Gemini principal (roteamento/planejamento/revisão)
+
+- Gemini (`google/antigravity-*`) é o modelo **principal** de orchestrator/architect/researcher/explore/scout/review/plan. O aviso documentado de risco de termos do provedor é risco documentado — **não** é falha operacional e não justifica fallback.
+- Falha operacional real (rate limit/quota esgotada, indisponível, timeout, auth/acesso negado, modelo ausente): no máximo **1 tentativa curta** se transitório (respeite `Retry-After`); auth inválida/quota esgotada → **não insistir** nem re-login automático; persistindo → alternativo autorizado por papel (mapa em `AGENT_MODEL_MAP.md`), **no mesmo agent** (permissões preservadas) e reportando de forma visível: papel, modelo principal, motivo sem segredos, modelo alternativo, provedor/franquia e trabalho já realizado antes da troca.
+- **Não** use fallback para: resposta indesejada sem erro demonstrado, tarefa difícil, brief fraco ou recusa de segurança legítima (nesses casos esclareça o objetivo ou reporte o bloqueio; não contorne).
+- Trocar de modelo **não zera** tentativas, alterações já aplicadas, limites de agentes, orçamento de consumo ou `STOP_LOOP`. Não alterne modelos no meio da tarefa; preferi concluir no modelo em que começou; sem polling de disponibilidade em background.
+- Acionamento **fora** da chamada que falhou (usuário: `/models` na sessão ou `opencode run --agent <papel> --model <alternativo>`); o orchestrator **não** decide/execute o próprio fallback. Kimi não é fallback genérico. Sem alternativo autorizado disponível → `blocked`.
 
 ## Anti-loop → pare e responda STOP_LOOP
 1. Mesma tool+args 2× sem dado novo
@@ -134,7 +159,9 @@ Status: done|partial|wrong_owner|blocked|failed
 Resumo:
 Entregáveis/files:
 Verificação (comandos + resultado):
+Escopo revisado:
 Lacunas/riscos:
+Tentativas consumidas:
 Próxima ação:
 Agents usados:
 ```

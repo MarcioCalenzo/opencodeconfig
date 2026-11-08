@@ -1,8 +1,7 @@
 ---
 description: Arquiteto. Design, tradeoffs, plano de implementação. Read-only em produção. Use em mudanças grandes; não use em fixes triviais.
 mode: subagent
-model: omni-router/omni/architect
-variant: max
+model: google/antigravity-gemini-3.8-flash-high
 temperature: 0.2
 steps: 20
 color: "#8B5CF6"
@@ -18,7 +17,6 @@ permission:
     "api-design": allow
     "architecture-decision-records": allow
     "security-review": allow
-    "graphify": allow
   doom_loop: ask
   edit: deny
   bash: ask

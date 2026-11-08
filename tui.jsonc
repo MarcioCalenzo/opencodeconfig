@@ -1,6 +1,7 @@
 {
   "plugin": [
-    "file:///home/joao/Downloads/opencode-dw"
+    "file:///home/joao/Downloads/opencode-dw",
+    "opencode-antigravity-auth"
   ],
   "keybinds": {
     "leader": "ctrl+x",

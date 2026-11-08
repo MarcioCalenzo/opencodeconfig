@@ -12,3 +12,12 @@ plugins/opencode-dw
 usage-stats.db
 usage-stats.db-shm
 usage-stats.db-wal
+.gitignore
+antigravity-accounts.json
+antigravity-accounts.json.*.tmp
+antigravity-signature-cache.json
+antigravity-logs/
+
+# secrets / machine-local backups (never commit)
+service.json
+opencode.json.bak-*

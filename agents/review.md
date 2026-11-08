@@ -1,8 +1,7 @@
 ---
 description: Code reviewer. Revisa diff/PR com severidade; não implementa. Use com diff real; não use antes da mudança existir.
 mode: subagent
-model: omni-router/omni/review
-variant: max
+model: google/antigravity-gemini-3.8-flash-high
 temperature: 0.1
 steps: 16
 color: "#F97316"

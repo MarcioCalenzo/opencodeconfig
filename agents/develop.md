@@ -1,8 +1,7 @@
 ---
 description: Desenvolvedor. Implementa features, fixes e refactors no código. Diff mínimo. Não redesenha arquitetura nem faz review formal.
 mode: subagent
-model: omni-router/omni/develop
-variant: max
+model: opencode/deepseek-v4.1-flash-free
 temperature: 0.15
 steps: 56
 color: "#22C55E"
@@ -18,7 +17,6 @@ permission:
     "api-design": allow
     "deployment-patterns": allow
     "docker-patterns": allow
-    "graphify": allow
   doom_loop: ask
   edit: allow
   bash: allow

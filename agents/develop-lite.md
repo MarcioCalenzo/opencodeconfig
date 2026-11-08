@@ -1,8 +1,7 @@
 ---
 description: Desenvolvedor lite. Só tarefas triviais (rename, format, docstring, import, one-liner). Escala para develop em qualquer dúvida.
 mode: subagent
-model: omni-router/omni/develop-lite
-variant: low
+model: opencode-go/mimo-v2.6-flash
 temperature: 0.1
 steps: 56
 color: "#86EFAC"

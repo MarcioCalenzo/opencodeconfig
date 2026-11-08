@@ -1,8 +1,7 @@
 ---
 description: Tester/QA. Escreve e roda testes, isola falhas de CI. Use quando comportamento muda; não use só para format/docs.
 mode: subagent
-model: omni-router/omni/tester
-variant: max
+model: opencode/deepseek-v4.1-flash-free
 temperature: 0.1
 steps: 24
 color: "#EAB308"
@@ -14,7 +13,6 @@ permission:
     "documentation-lookup": allow
     "tdd-workflow": allow
     "e2e-testing": allow
-    "graphify": allow
   doom_loop: ask
   edit: allow
   bash: allow

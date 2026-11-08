@@ -1,8 +1,7 @@
 ---
 description: Debugger. Root cause com evidência e fix mínimo. Use quando causa unclear; não use em bugs óbvios de 1 linha.
 mode: subagent
-model: omni-router/omni/debugger
-variant: max
+model: opencode/deepseek-v4.1-flash-free
 temperature: 0.1
 steps: 24
 color: "#EF4444"
@@ -14,7 +13,6 @@ permission:
     "documentation-lookup": allow
     "backend-patterns": allow
     "docker-patterns": allow
-    "graphify": allow
   doom_loop: ask
   edit: allow
   bash: allow

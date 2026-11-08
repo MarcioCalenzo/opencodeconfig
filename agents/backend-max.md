@@ -1,8 +1,7 @@
 ---
-description: Backend máximo. Só por escalada de backend após falha, ou complexidade explícita (multi-módulo, contrato público).
+description: Alternativa de implementação backend (GLM-5.3-Flash). Só por escalada após falha com hipótese nova, ou indisponibilidade autorizada. Não representa superioridade garantida sobre o modelo padrão.
 mode: subagent
-model: omni-router/omni/openai-5.6-sol
-variant: max
+model: opencode/glm-5.3-flash-free
 temperature: 0.1
 steps: 28
 color: "#0369A1"
@@ -17,7 +16,6 @@ permission:
     "api-design": allow
     "deployment-patterns": allow
     "docker-patterns": allow
-    "graphify": allow
   doom_loop: ask
   edit: allow
   bash: allow

@@ -1,8 +1,7 @@
 ---
 description: Backend Node/Nest/Postgres/Redis/API. Implementa só backend. Não faz frontend nem redesign amplo.
 mode: subagent
-model: omni-router/omni/openai-5.6-terra
-variant: max
+model: opencode/deepseek-v4.1-flash-free
 temperature: 0.1
 steps: 28
 color: "#0EA5E9"
@@ -17,7 +16,6 @@ permission:
     "api-design": allow
     "deployment-patterns": allow
     "docker-patterns": allow
-    "graphify": allow
   doom_loop: ask
   edit: allow
   bash: allow
